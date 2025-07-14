@@ -1,12 +1,12 @@
-import { Injectable } from '@nestjs/common';
-import { DatabaseService } from '../database/database.service';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { PrismaService } from '../../prisma/prisma.service';
 import { CreateTodoDto } from '../dto/create-todo.dto';
 import { UpdateTodoDto } from '../dto/update-todo.dto';
 
 export interface Todo {
   id: number;
   title: string;
-  description?: string;
+  description?: string | null;
   is_done: boolean;
   created_at: Date;
   updated_at: Date;
@@ -14,53 +14,43 @@ export interface Todo {
 
 @Injectable()
 export class TodoService {
-  constructor(private readonly db: DatabaseService) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   async create(createDto: CreateTodoDto): Promise<Todo> {
     const { title, description, is_done = false } = createDto;
-    const sql = `
-      INSERT INTO todos (title, description, is_done)
-      VALUES ($1, $2, $3)
-      RETURNING *;
-    `;
-    const result = await this.db.query<Todo>(sql, [title, description || null, is_done]);
-    return result[0];
+    return await this.prisma.todos.create({
+      data: {
+        title,
+        description: description ?? null,
+        is_done,
+      },
+    });
   }
 
   async findAll(): Promise<Todo[]> {
-    return this.db.query<Todo>(`SELECT * FROM todos ORDER BY created_at DESC`);
+    return await this.prisma.todos.findMany();
   }
 
   async findOne(id: number): Promise<Todo> {
-    const result = await this.db.query<Todo>(
-      `SELECT * FROM todos WHERE id = $1`,
-      [id],
-    );
-    if (result.length === 0) throw new Error('Todo not found');
-    return result[0];
+    const todo = await this.prisma.todos.findUnique({
+      where: { id },
+    });
+    if (!todo) throw new NotFoundException(`Todo with ID ${id} not found`);
+    return todo;
   }
 
   async update(id: number, updateDto: UpdateTodoDto): Promise<Todo> {
-    const keys = Object.keys(updateDto);
-    if (!keys.length) return this.findOne(id);
-
-    const setClause = keys.map((key, i) => `${key} = $${i + 1}`).join(', ');
-    const values = Object.values(updateDto);
-    values.push(id);
-
-    const sql = `
-      UPDATE todos
-      SET ${setClause}, updated_at = NOW()
-      WHERE id = $${values.length}
-      RETURNING *;
-    `;
-
-    const result = await this.db.query<Todo>(sql, values);
-    if (result.length === 0) throw new Error('Todo not found');
-    return result[0];
+    await this.findOne(id);
+    return this.prisma.todos.update({
+      where: { id },
+      data: updateDto,
+    });
   }
 
   async remove(id: number): Promise<void> {
-    await this.db.query(`DELETE FROM todos WHERE id = $1`, [id]);
+    await this.findOne(id);
+    await this.prisma.todos.delete({
+      where: { id },
+    });
   }
 }
