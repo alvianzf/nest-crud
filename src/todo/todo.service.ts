@@ -10,6 +10,13 @@ export interface Todo {
   is_done: boolean;
   created_at: Date;
   updated_at: Date;
+  pic_id?: number | null;
+  pic?: Pic | null; // Assuming you want to include related 'pic' data
+}
+
+export interface Pic {
+  id: number;
+  name: string;
 }
 
 @Injectable()
@@ -28,16 +35,7 @@ export class TodoService {
   }
 
   async findAll(): Promise<Todo[]> {
-    return await this.prisma.todos.findMany({
-      select: {
-        id: true,
-        title: true,
-        description: true,
-        is_done: true,
-        created_at: true,
-        updated_at: true,
-      }
-    });
+    return await this.prisma.todos.findMany();
   }
 
   async findOne(id: number): Promise<Todo> {

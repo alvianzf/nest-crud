@@ -19,6 +19,15 @@ async function main() {
       { title: 'Third Todo', description: null, is_done: false },
     ],
   });
+
+  await prisma.pic.createMany({
+    data: [
+      { name: 'Vicky' },
+      { name: 'John' },
+      { name: 'Doe' },
+      { name: 'Jane' },
+    ],
+  });
 }
 
 main()

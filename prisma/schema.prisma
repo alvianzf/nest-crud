@@ -16,7 +16,7 @@ model Todos {
   updated_at  DateTime @updatedAt
   pic_id      Int?
 
-  pic         Pic?      @relation(fields: [pic_id], references: [id])
+  pic         Pic?      @relation(fields: [pic_id], references: [id], onDelete: Cascade)
 }
 
 model Pic {
