@@ -28,7 +28,16 @@ export class TodoService {
   }
 
   async findAll(): Promise<Todo[]> {
-    return await this.prisma.todos.findMany();
+    return await this.prisma.todos.findMany({
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        is_done: true,
+        created_at: true,
+        updated_at: true,
+      }
+    });
   }
 
   async findOne(id: number): Promise<Todo> {

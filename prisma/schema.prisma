@@ -14,4 +14,14 @@ model Todos {
   is_done     Boolean  @default(false)
   created_at  DateTime @default(now())
   updated_at  DateTime @updatedAt
+  pic_id      Int?
+
+  pic         Pic?      @relation(fields: [pic_id], references: [id])
+}
+
+model Pic {
+  id          Int       @id @default(autoincrement())
+  name        String
+
+  todos       Todos[]
 }
