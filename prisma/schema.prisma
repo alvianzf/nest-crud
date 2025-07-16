@@ -25,3 +25,27 @@ model Pic {
 
   todos       Todos[]
 }
+
+enum Role {
+  USER
+  ADMIN
+  MODERATOR
+}
+
+enum Status {
+  ACTIVE
+  NONACTIVE
+  BANNED
+}
+
+model User {
+  id          Int       @id @default(autoincrement())
+  email       String    @unique
+  username    String?   @unique
+  password    String?
+  role        Role?
+  status      Status?   @default(ACTIVE)
+  last_login  DateTime  @default(now())
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @default(now())
+}
