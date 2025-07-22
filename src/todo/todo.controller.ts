@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 import { TodoService, Todo } from './todo.service';
 import { CreateTodoDto } from '../dto/create-todo.dto';
-// import { UpdateTodoDto } from '../dto/update-todo.dto';
+import { UpdateTodoDto } from '../dto/update-todo.dto';
 
 @Controller('todos')
 export class TodoController {
@@ -31,16 +31,16 @@ export class TodoController {
     return this.todoService.findOne(id);
   }
 
-  // @Patch(':id')
-  // update(
-  //   @Param('id', ParseIntPipe) id: number,
-  //   @Body() updateDto: UpdateTodoDto,
-  // ): Promise<Todo> {
-  //   return this.todoService.update(id, updateDto);
-  // }
+  @Patch(':id')
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateDto: UpdateTodoDto,
+  ): Promise<Todo> {
+    return this.todoService.update(id, updateDto);
+  }
 
-  // @Delete(':id')
-  // remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
-  //   return this.todoService.remove(id);
-  // }
+  @Delete(':id')
+  remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
+    return this.todoService.remove(id);
+  }
 }
